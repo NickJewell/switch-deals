@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
+from pipeline import shortlist
 from pipeline.models import ATL_CONFIRM_DAYS, Deal, fmt_gbp
 from pipeline.store import DEFAULT_DB, Store
 
@@ -98,16 +99,63 @@ def render(week: str, publish: date, cutoff: datetime, ranked, total_live: int, 
             f"{_ends(d.sale_end)} | {atl} | {'✓' if d.title.is_switch2 else ''} | "
             f"{d.title.downloads_rank or ''} | {s:.3f} | `{d.nsuid}` |"
         )
-    lines += ["", "## picks.yaml snippets", "", "```yaml"]
+    lines += ["", "## picks.yaml snippets (any candidate)", "", "```yaml"]
     for _, d in ranked[:TOP_N]:
-        lines += [
-            f'  - nsuid: "{d.nsuid}"  # {d.title.title} — {fmt_gbp(d.sale_p)}, ends {_ends(d.sale_end)}',
-            "    layout: spotlight        # spotlight | versus | rapid_fire | skip",
-            '    take: ""',
-            "    approved: false",
-        ]
+        lines += _snippet(d, "rapid_fire")
     lines += ["```", ""]
-    return "\n".join(lines)
+    table = next(i for i, line in enumerate(lines) if line.startswith("| # |"))
+    return "\n".join(lines[:table] + _shortlist_section(ranked) + lines[table:])
+
+
+def _snippet(d: Deal, layout: str) -> list[str]:
+    return [
+        f'  - nsuid: "{d.nsuid}"  # {d.title.title} — {fmt_gbp(d.sale_p)}, ends {_ends(d.sale_end)}',
+        f"    layout: {layout}"
+        + " " * (17 - len(layout))
+        + "# spotlight | versus | rapid_fire | skip",
+        '    take: ""',
+        "    approved: false",
+    ]
+
+
+def _shortlist_section(ranked: list[tuple[float, Deal]]) -> list[str]:
+    sl = shortlist.build(ranked)
+    lines = [
+        f"## Suggested running order — {len(sl.slots)} picks, ≈{sl.minutes:.1f} min of narration",
+        "",
+        f"_Rules: top {shortlist.POOL} by score; quotas first ("
+        + ", ".join(f"{n}× {label}" for label, n, _ in shortlist.QUOTAS)
+        + f"), then best score; download rank ≤ {shortlist.MAX_RANK}; max {shortlist.MAX_PER_PUBLISHER} per publisher, 1 per series, "
+        f"{shortlist.MAX_PER_GENRE} per genre. Spotlights = the two most popular picks._"
+        + (f" **Relaxed: {', '.join(sl.relaxed)} cap.**" if sl.relaxed else ""),
+        "",
+        "| # | layout | title | price | % | genre | rank | why | words |",
+        "|---:|---|---|---|---:|---|---:|---|---:|",
+    ]
+    for i, s in enumerate(sl.slots, 1):
+        d = s.deal
+        lines.append(
+            f"| {i} | {s.layout} | {d.title.title} | {fmt_gbp(d.regular_p)} → "
+            f"**{fmt_gbp(d.sale_p)}** | {d.pct_off}% | {s.genre} | {d.title.downloads_rank or ''} | "
+            f"{s.reason} | ~{shortlist.WORDS[s.layout]} |"
+        )
+    lines += [
+        "",
+        "**Swaps** (next best, and what kept them out):",
+        "",
+        *[
+            f"- {s.deal.title.title} — {fmt_gbp(s.deal.sale_p)}, {s.deal.pct_off}% · {s.genre} · {why}"
+            for s, why in sl.alternates
+        ],
+        "",
+        "Paste into `picks.yaml`, write each `take`, then set `approved: true`:",
+        "",
+        "```yaml",
+        "picks:",
+    ]
+    for s in sl.slots:
+        lines += _snippet(s.deal, s.layout)
+    return lines + ["```", "", "## All candidates", ""]
 
 
 def picks_template(publish: date) -> str:
