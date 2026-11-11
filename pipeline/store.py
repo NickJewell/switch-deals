@@ -110,6 +110,14 @@ class Store:
             )  # fmt: skip
         return self.db.total_changes - before
 
+    def fs_id_for_nsuid(self, nsuid: str) -> str | None:
+        r = self.db.execute("SELECT fs_id FROM title_nsuids WHERE nsuid = ?", (nsuid,)).fetchone()
+        return r[0] if r else None
+
+    def title_name(self, fs_id: str) -> str | None:
+        r = self.db.execute("SELECT title FROM titles WHERE fs_id = ?", (fs_id,)).fetchone()
+        return r[0] if r else None
+
     def count(self, table: str) -> int:
         assert table in {"titles", "title_nsuids", "price_snapshots"}
         return self.db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]

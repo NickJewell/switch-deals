@@ -14,6 +14,7 @@ Local pipeline: Nintendo endpoints → deals DB → picks.yaml (manual) → scri
 - The price API (`api.ec.nintendo.com`) is the source of truth for anything said on screen or in the voiceover. Solr index prices are hints only, and a Solr doc's price fields may mix several nsuids.
 - Remotion: everything comes from props, with no data fetching inside components. Layouts go in `video/src/layouts/`.
 - ElevenLabs: never call the API without passing the cache check, and print the character count before each run.
+- No repeats: a game (matched by fs_id, so bundles count) approved in any episode within 120 days of this one is never shortlisted, and `make check-picks` fails on it. The Phase 2 facts lint must call `history.check_picks`.
 - Every `make` target is idempotent and works on one episode folder (`WEEK=2026-W46`).
 - Never push to GitHub without asking.
 

@@ -81,7 +81,11 @@ class Shortlist:
         return words / WPM
 
 
-def build(ranked: list[tuple[float, Deal]], size: int = SIZE) -> Shortlist:
+def build(
+    ranked: list[tuple[float, Deal]], size: int = SIZE, covered: dict[str, str] | None = None
+) -> Shortlist:
+    """`covered` maps fs_id → label of the recent episode that covered it (never relaxed)."""
+    covered = covered or {}
     pool = [(s, d) for s, d in ranked[:POOL]]
     genre = genre_buckets([d for _, d in pool])
     chosen: list[Slot] = []
@@ -91,6 +95,8 @@ def build(ranked: list[tuple[float, Deal]], size: int = SIZE) -> Shortlist:
     def blocker(d: Deal) -> str | None:
         if any(c.deal.nsuid == d.nsuid for c in chosen):
             return "already in"
+        if d.title.fs_id in covered:
+            return f"covered in {covered[d.title.fs_id]}"
         rank = d.title.downloads_rank
         if rank is None or rank > MAX_RANK:
             return f"obscure ({'unranked' if rank is None else f'rank {rank}'})"

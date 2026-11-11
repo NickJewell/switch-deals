@@ -10,7 +10,7 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
-from pipeline import shortlist
+from pipeline import history, shortlist
 from pipeline.models import ATL_CONFIRM_DAYS, Deal, fmt_gbp
 from pipeline.store import DEFAULT_DB, Store
 
@@ -74,7 +74,16 @@ def _ends(dt: datetime | None) -> str:
     return dt.astimezone(LONDON).strftime("%a %d %b %H:%M") if dt else "—"
 
 
-def render(week: str, publish: date, cutoff: datetime, ranked, total_live: int, now) -> str:
+def render(
+    week: str,
+    publish: date,
+    cutoff: datetime,
+    ranked,
+    total_live: int,
+    now,
+    covered: dict[str, str] | None = None,
+) -> str:
+    covered = covered or {}
     lines = [
         f"# Candidates — {week}",
         "",
@@ -86,7 +95,9 @@ def render(week: str, publish: date, cutoff: datetime, ranked, total_live: int, 
         f"Weights: {', '.join(f'{k} {v}' for k, v in WEIGHTS.items())}. "
         f"ATL `✓` = lowest price in our own history, once that covers ≥ {ATL_CONFIRM_DAYS} days "
         "(Nintendo exposes no lowest-ever price, so ATL stays blank until then). "
-        f"Popularity = log-scaled `downloads_rank` (#1 → 1, #{RANK_FLOOR}+ or unranked → 0).",
+        f"Popularity = log-scaled `downloads_rank` (#1 → 1, #{RANK_FLOOR}+ or unranked → 0). "
+        f"`↺` = covered by another episode within {history.WINDOW_DAYS} days "
+        f"({len(covered)} games) — never shortlisted.",
         "",
         "| # | title | price | % | ends (London) | ATL | S2 | rank | score | nsuid |",
         "|---:|---|---|---:|---|:-:|:-:|---:|---:|---|",
@@ -94,6 +105,8 @@ def render(week: str, publish: date, cutoff: datetime, ranked, total_live: int, 
     for i, (s, d) in enumerate(ranked[:TOP_N], 1):
         atl = "✓" if d.atl_confirmed else ""
         title = f"[{d.title.title}]({d.title.url})" if d.title.url else d.title.title
+        if d.title.fs_id in covered:
+            title = f"↺ {covered[d.title.fs_id]} · ~~{title}~~"
         lines.append(
             f"| {i} | {title} | {fmt_gbp(d.regular_p)} → **{fmt_gbp(d.sale_p)}** | {d.pct_off}% | "
             f"{_ends(d.sale_end)} | {atl} | {'✓' if d.title.is_switch2 else ''} | "
@@ -104,7 +117,7 @@ def render(week: str, publish: date, cutoff: datetime, ranked, total_live: int, 
         lines += _snippet(d, "rapid_fire")
     lines += ["```", ""]
     table = next(i for i, line in enumerate(lines) if line.startswith("| # |"))
-    return "\n".join(lines[:table] + _shortlist_section(ranked) + lines[table:])
+    return "\n".join(lines[:table] + _shortlist_section(ranked, covered) + lines[table:])
 
 
 def _snippet(d: Deal, layout: str) -> list[str]:
@@ -118,8 +131,8 @@ def _snippet(d: Deal, layout: str) -> list[str]:
     ]
 
 
-def _shortlist_section(ranked: list[tuple[float, Deal]]) -> list[str]:
-    sl = shortlist.build(ranked)
+def _shortlist_section(ranked: list[tuple[float, Deal]], covered: dict[str, str]) -> list[str]:
+    sl = shortlist.build(ranked, covered=covered)
     lines = [
         f"## Suggested running order — {len(sl.slots)} picks, ≈{sl.minutes:.1f} min of narration",
         "",
@@ -173,8 +186,9 @@ def run(week: str, country: str, store: Store, now: datetime, root: Path = Path(
     cutoff = cutoff_utc(publish)
     live = store.latest_deals(country, now)
     ranked = score(eligible(live, cutoff), now)
+    covered = {k: c.label() for k, c in history.coverage(root, store, week, publish).items()}
     out = folder / "candidates.md"
-    out.write_text(render(week, publish, cutoff, ranked, len(live), now))
+    out.write_text(render(week, publish, cutoff, ranked, len(live), now, covered))
     if not picks.exists():
         picks.write_text(picks_template(publish))
     return out

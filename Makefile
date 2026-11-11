@@ -2,7 +2,7 @@ WEEK ?= $(shell date +%G-W%V)
 COUNTRY ?= GB
 PY := uv run python -m
 
-.PHONY: discover fetch candidates voice clips render publish test lint
+.PHONY: discover fetch candidates check-picks voice clips render publish test lint
 
 discover:
 	$(PY) pipeline.nintendo.discover
@@ -12,6 +12,9 @@ fetch:
 
 candidates:
 	$(PY) pipeline.candidates --week $(WEEK) --country $(COUNTRY)
+
+check-picks:
+	$(PY) pipeline.history --week $(WEEK)
 
 voice clips render publish:
 	@echo "make $@: not yet implemented (see CLAUDE.md phase status)"; exit 1
