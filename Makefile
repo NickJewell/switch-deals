@@ -5,7 +5,7 @@ PY := uv run python -m
 .PHONY: discover fetch candidates voice clips render publish test lint
 
 discover:
-	$(PY) pipeline.discover
+	$(PY) pipeline.nintendo.discover
 
 fetch:
 	$(PY) pipeline.fetch --country $(COUNTRY)

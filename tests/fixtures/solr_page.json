@@ -1,0 +1,169 @@
+{
+ "response": {
+  "numFound": 5,
+  "start": 0,
+  "docs": [
+   {
+    "fs_id": "3016562",
+    "url": "/en-gb/Games/Nintendo-Switch-2-games/FINAL-FANTASY-VII-REBIRTH-3016562.html",
+    "dates_released_dts": [
+     "2026-06-03T00:00:00Z"
+    ],
+    "image_url_h16x9_s": "https://www.nintendo.com/eu/media/images/assets/nintendo_switch_2_games/finalfantasyviirebirth/16x9_FinalFantasyVIIRebirth_image500w.jpg",
+    "product_code_txt": [
+     "BEEYABMTA"
+    ],
+    "image_url_sq_s": "https://www.nintendo.com/eu/media/images/assets/nintendo_switch_2_games/finalfantasyviirebirth/1x1_FinalFantasyVIIRebirth_image500w.jpg",
+    "originally_for_t": "BEE",
+    "price_discounted_f": 9.74,
+    "publisher": "SQUARE ENIX",
+    "excerpt": "The Unknown Journey Continues",
+    "nsuid_txt": [
+     "70010000112478",
+     "70070000032076"
+    ],
+    "price_has_discount_b": true,
+    "price_discount_percentage_f": 85,
+    "title": "FINAL FANTASY VII REBIRTH",
+    "playable_on_txt": [
+     "BEE"
+    ],
+    "pretty_game_categories_txt": [
+     "RPG"
+    ],
+    "system_names_txt": [
+     "Nintendo Switch 2"
+    ],
+    "price_regular_f": 64.99,
+    "price_lowest_f": 7.49,
+    "downloads_rank_i": 28
+   },
+   {
+    "fs_id": "2258338",
+    "url": "/en-gb/Games/Nintendo-Switch-download-software/Cannon-Fodder-and-Green-Game-Bundle-2258338.html",
+    "dates_released_dts": [
+     "2022-08-24T00:00:00Z"
+    ],
+    "product_code_txt": [
+     "HACYA93YA"
+    ],
+    "image_url_sq_s": "https://www.nintendo.com/eu/media/images/11_square_images/games_18/nintendo_switch_download_software/1x1_NSwitchDS_CannonFodderAndGreenGameBundle_image500w.jpg",
+    "originally_for_t": "HAC",
+    "price_discounted_f": 1.79,
+    "publisher": "Draw Distance",
+    "excerpt": "Bundle of two games: Green Game: TimeSwapper and Paper Wars: Cannon Fodder Devastated",
+    "price_has_discount_b": true,
+    "price_discount_percentage_f": 83,
+    "title": "Cannon Fodder and Green Game Bundle",
+    "playable_on_txt": [
+     "HAC"
+    ],
+    "pretty_game_categories_txt": [
+     "Action",
+     "Arcade",
+     "Platformer",
+     "Strategy"
+    ],
+    "system_names_txt": [
+     "Nintendo Switch"
+    ],
+    "price_regular_f": 10.79,
+    "price_lowest_f": 1.79
+   },
+   {
+    "fs_id": "3108411",
+    "url": "/en-gb/Games/Nintendo-Switch-2-games/DRAGON-QUEST-XI-S-Echoes-of-an-Elusive-Age-Definitive-Edition-3108411.html",
+    "dates_released_dts": [
+     "2026-09-24T00:00:00Z"
+    ],
+    "image_url_h16x9_s": "https://www.nintendo.com/eu/media/images/assets/nintendo_switch_2_games/dragonquestxisechoesofanelusiveagede/16x9_DragonQuestXiSEchoesOfAnElusiveAgeDE_EN_image500w.jpg",
+    "image_url_sq_s": "https://www.nintendo.com/eu/media/images/assets/nintendo_switch_2_games/dragonquestxisechoesofanelusiveagede/1x1_DragonQuestXiSEchoesOfAnElusiveAgeDE_EN_image500w.jpg",
+    "originally_for_t": "BEE",
+    "price_discounted_f": 17.49,
+    "publisher": "SQUARE ENIX",
+    "excerpt": "The entirety of the ageless Erdrean adventure, all in one package!\n",
+    "nsuid_txt": [
+     "70010000097771"
+    ],
+    "price_has_discount_b": true,
+    "price_discount_percentage_f": 50,
+    "title": "DRAGON QUEST XI S: Echoes of an Elusive Age - Definitive Edition",
+    "playable_on_txt": [
+     "BEE"
+    ],
+    "pretty_game_categories_txt": [
+     "RPG"
+    ],
+    "system_names_txt": [
+     "Nintendo Switch 2"
+    ],
+    "price_regular_f": 34.99,
+    "price_lowest_f": 17.49,
+    "downloads_rank_i": 148
+   },
+   {
+    "fs_id": "3117022",
+    "url": "/en-gb/Games/Nintendo-Switch-2-games/FINAL-FANTASY-X-X-2-HD-Remaster-3117022.html",
+    "dates_released_dts": [
+     "2026-07-23T00:00:00Z"
+    ],
+    "image_url_h16x9_s": "https://www.nintendo.com/eu/media/images/assets/nintendo_switch_2_games/finalfantasyxx2hdremaster/16x9_FinalFantasyXX2HDRemaster_image500w.jpg",
+    "image_url_sq_s": "https://www.nintendo.com/eu/media/images/assets/nintendo_switch_2_games/finalfantasyxx2hdremaster/1x1_FinalFantasyXX2HDRemaster_image500w.jpg",
+    "originally_for_t": "BEE",
+    "price_discounted_f": 22.49,
+    "publisher": "SQUARE ENIX",
+    "excerpt": "FINAL FANTASY X/X-2 HD Remaster brings the timeless classics forward to the current generation of fans, old and new alike.",
+    "nsuid_txt": [
+     "70010000113866"
+    ],
+    "price_has_discount_b": true,
+    "price_discount_percentage_f": 50,
+    "title": "FINAL FANTASY X/X-2 HD Remaster",
+    "playable_on_txt": [
+     "BEE"
+    ],
+    "pretty_game_categories_txt": [
+     "RPG"
+    ],
+    "system_names_txt": [
+     "Nintendo Switch 2"
+    ],
+    "price_regular_f": 44.99,
+    "price_lowest_f": 22.49,
+    "downloads_rank_i": 266
+   },
+   {
+    "fs_id": "3140876",
+    "url": "/en-gb/Games/Nintendo-Switch-2-games/STAR-OCEAN-THE-SECOND-STORY-R-3140876.html",
+    "dates_released_dts": [
+     "2026-07-16T00:00:00Z"
+    ],
+    "image_url_h16x9_s": "https://www.nintendo.com/eu/media/images/assets/nintendo_switch_2_games/staroceanthesecondstoryr/16x9_StarOceanTheSecondStoryR_image500w.jpg",
+    "image_url_sq_s": "https://www.nintendo.com/eu/media/images/assets/nintendo_switch_2_games/staroceanthesecondstoryr/1x1_StarOceanTheSecondStoryR_image500w.jpg",
+    "originally_for_t": "BEE",
+    "price_discounted_f": 22.49,
+    "publisher": "SQUARE ENIX",
+    "excerpt": "TWO WORLDS, ONE FATEFUL ENCOUNTER. ",
+    "nsuid_txt": [
+     "70010000121078"
+    ],
+    "price_has_discount_b": true,
+    "price_discount_percentage_f": 50,
+    "title": "STAR OCEAN THE SECOND STORY R",
+    "playable_on_txt": [
+     "BEE"
+    ],
+    "pretty_game_categories_txt": [
+     "Action",
+     "RPG"
+    ],
+    "system_names_txt": [
+     "Nintendo Switch 2"
+    ],
+    "price_regular_f": 44.99,
+    "price_lowest_f": 22.49,
+    "downloads_rank_i": 788
+   }
+  ]
+ }
+}
