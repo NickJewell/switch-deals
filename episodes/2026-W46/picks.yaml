@@ -1,0 +1,36 @@
+publish_date: 2026-11-13
+# Suggested by make candidates — write a take for each, swap/drop as you like (6–8 picks),
+# then set approved: true. Draft takes are from research.md — edit freely. Run `make check-picks WEEK=2026-W46` when done.
+picks:
+  - nsuid: "70010000112478"  # FINAL FANTASY VII REBIRTH — £7.49, ends Mon 16 Nov 23:59
+    layout: spotlight        # spotlight | versus | rapid_fire | skip
+    take: "Buy — pure quality, even if it's a bit fuzzy handheld. Play Intergrade first, and clear 90-odd gig."
+    approved: false
+  - nsuid: "70010000105176"  # WWE 2K26 Standard Edition — £23.99, ends Mon 16 Nov 23:59
+    layout: rapid_fire       # spotlight | versus | rapid_fire | skip
+    take: "Buy if you love your wrestling — best in years, but The Island malarkey's a bit murky."
+    approved: false
+  - nsuid: "70010000035703"  # HOT WHEELS UNLEASHED™ — £3.74, ends Mon 16 Nov 23:59
+    layout: rapid_fire       # spotlight | versus | rapid_fire | skip
+    take: "Buy — daft, tidy little racer. Track editor's the star; the sequel's deeper, to be fair."
+    approved: false
+  - nsuid: "70070000013132"  # Grand Theft Auto: The Trilogy – The Definitive Edition — £16.49, ends Mon 16 Nov 23:59
+    layout: spotlight        # spotlight | versus | rapid_fire | skip
+    take: "Wait, honestly — patched into decent nick, but still the weakest way to play these."
+    approved: false
+  - nsuid: "70070000014044"  # Deponia Collection — £3.59, ends Mon 16 Nov 23:59
+    layout: rapid_fire       # spotlight | versus | rapid_fire | skip
+    take: "Buy if you love a point-and-click — four games, fifty-odd hours. Rufus is a git, mind."
+    approved: false
+  - nsuid: "70010000097420"  # WILD HEARTS S — £14.84, ends Tue 17 Nov 23:59
+    layout: rapid_fire       # spotlight | versus | rapid_fire | skip
+    take: "Buy for co-op — Monster Hunter's underrated rival. Bit choppy, but does what it does well."
+    approved: false
+  - nsuid: "70010000016896"  # The Talos Principle: Deluxe Edition — £2.69, ends Mon 16 Nov 23:59
+    layout: rapid_fire       # spotlight | versus | rapid_fire | skip
+    take: "Buy — proper thinker from the Serious Sam lot, of all people. Play it handheld."
+    approved: false
+  - nsuid: "70010000028826"  # RollerCoaster Tycoon 3 Complete Edition — £4.99, ends Tue 17 Nov 23:59
+    layout: rapid_fire       # spotlight | versus | rapid_fire | skip
+    take: "Buy if you were a 2004 PC kid — still lovely, but the joypad controls are a bit iffy."
+    approved: false
