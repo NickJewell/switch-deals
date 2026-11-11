@@ -17,5 +17,8 @@ Local pipeline: Nintendo endpoints → deals DB → picks.yaml (manual) → scri
 - Every `make` target is idempotent and works on one episode folder (`WEEK=2026-W46`).
 - Never push to GitHub without asking.
 
+## Script writing (Phase 2+)
+`prompts/voiceover-script.md` is Nick's voiceover persona/style prompt — use it verbatim as the base when generating `script.md`. Keep it unedited; put pipeline-specific additions (segment headers, `{{GBP:…}}` tokens, ElevenLabs v3 audio tags, ~2,500-char segments, prices only via tokens) in a separate wrapper rather than modifying it.
+
 ## Layout
 See `docs/data-dictionary.md` for the Nintendo field reference.
