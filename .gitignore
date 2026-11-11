@@ -19,3 +19,4 @@ __pycache__/
 video/node_modules/
 video/out/
 .DS_Store
+episodes/*/candidates.md

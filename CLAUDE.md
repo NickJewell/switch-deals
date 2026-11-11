@@ -10,6 +10,7 @@ Local pipeline: Nintendo endpoints → deals DB → picks.yaml (manual) → scri
 - Tests never hit the network. They use recorded fixtures in `tests/fixtures/` (trimmed Nintendo responses only, never secrets: the repo is public).
 - Raw Nintendo field names appear **only** in `pipeline/nintendo/*.py`. Everything else uses `pipeline/models.py` dataclasses.
 - Money is integer pence (`int`). Never compare prices as floats. Datetimes are tz-aware UTC.
+- ATL comes only from our own `price_snapshots` history (Nintendo has no lowest-ever field; `price_lowest_f` is the cheapest *current* price). Confirmed after 90 days of daily fetches.
 - The price API (`api.ec.nintendo.com`) is the source of truth for anything said on screen or in the voiceover. Solr index prices are hints only, and a Solr doc's price fields may mix several nsuids.
 - Remotion: everything comes from props, with no data fetching inside components. Layouts go in `video/src/layouts/`.
 - ElevenLabs: never call the API without passing the cache check, and print the character count before each run.

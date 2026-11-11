@@ -1,6 +1,6 @@
 # Manual price check vs nintendo.co.uk
 
-_Generated 2026-11-11 18:43 UTC. Open each link, fill in the site prices, tick if they match._
+_Generated 2026-11-11 18:47 UTC. Open each link, fill in the site prices, tick if they match._
 
 | # | title | S2 | API regular | API sale | ends (UTC) | site regular | site sale | ok? |
 |---:|---|:-:|---:|---:|---|---|---|:-:|

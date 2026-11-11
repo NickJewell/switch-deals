@@ -4,6 +4,7 @@ See docs/data-dictionary.md. Key facts:
 - `/en/` index prices are GBP but a doc's price fields can come from *different* nsuids.
 - `nsuid_txt` is a list: 7001… = base game, 7007… = bundle/edition, 7005… = add-on.
 - Switch 2: `playable_on_txt` contains "BEE" (agrees 100% with system_names_txt).
+- `price_lowest_f` is the cheapest CURRENT price across nsuids, not lowest-ever.
 - There is no `popularity` field; `downloads_rank_i` (lower = better, 999999 = unranked).
 """
 
@@ -58,7 +59,7 @@ def doc_to_title(doc: dict) -> Title:
         downloads_rank=None if rank in (None, UNRANKED) else int(rank),
         index_regular_p=to_pence(doc.get("price_regular_f")),
         index_sale_p=to_pence(doc.get("price_discounted_f")),
-        index_lowest_p=to_pence(doc.get("price_lowest_f")),
+        index_cheapest_p=to_pence(doc.get("price_lowest_f")),
         image_square=doc.get("image_url_sq_s"),
         image_wide=doc.get("image_url_h16x9_s"),
         url=(SITE + url) if url and url.startswith("/") else url,

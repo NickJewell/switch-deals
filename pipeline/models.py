@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import ROUND_HALF_UP, Decimal
 
+ATL_CONFIRM_DAYS = 90
+
 
 def to_pence(value: str | float | int | None) -> int | None:
     """'7.2' -> 720, 64.99 -> 6499. Floats go via str() so 9.74 never becomes 973."""
@@ -33,7 +35,7 @@ class Title:
     downloads_rank: int | None = None  # lower = more popular; None = unranked
     index_regular_p: int | None = None  # Solr hints only: may mix nsuids
     index_sale_p: int | None = None
-    index_lowest_p: int | None = None
+    index_cheapest_p: int | None = None  # cheapest CURRENT price across nsuids — not an ATL
     image_square: str | None = None
     image_wide: str | None = None
     url: str | None = None
@@ -75,14 +77,17 @@ class Deal:
 
     @property
     def is_atl(self) -> bool:
-        """Sale price <= every low we know of (our history and the index's lowest-ever)."""
-        lows = [p for p in (self.history_min_p, self.title.index_lowest_p) if p is not None]
-        return bool(lows) and self.sale_p <= min(lows)
+        """Sale price <= the lowest sale price in our own history.
+
+        Nintendo exposes no lowest-ever field (`price_lowest_f` is the cheapest *current*
+        price across a doc's nsuids), so our snapshot history is the only ATL source.
+        """
+        return self.history_min_p is not None and self.sale_p <= self.history_min_p
 
     @property
     def atl_confirmed(self) -> bool:
-        """ATL backed by the index's lowest-ever field or >=14 days of our own history."""
-        return self.is_atl and (self.title.index_lowest_p is not None or self.history_days >= 14)
+        """ATL backed by enough history to have seen previous sales (eShop sales recur ~quarterly)."""
+        return self.is_atl and self.history_days >= ATL_CONFIRM_DAYS
 
     def days_left(self, now: datetime) -> float | None:
         if self.sale_end is None:

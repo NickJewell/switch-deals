@@ -29,7 +29,7 @@ def test_multi_nsuid_doc_prefers_base_game():
     assert t.nsuids == ("70010000112478", "70070000032076")
     assert t.primary_nsuid == "70010000112478"
     assert t.is_switch2
-    assert t.index_lowest_p == 749
+    assert t.index_cheapest_p == 749
     assert t.url.startswith("https://www.nintendo.com/en-gb/")
 
 

@@ -132,9 +132,14 @@ def main() -> None:
         '- API `raw_value` is a string without trailing zeros (`"7.2"`) — parse with Decimal '
         "into integer pence.",
         "- **Price fields:** `price_regular_f`, `price_discounted_f`, "
-        "`price_discount_percentage_f`, **`price_lowest_f` (lowest-ever)**, `price_sorting_f`. "
+        "`price_discount_percentage_f`, `price_lowest_f`, `price_sorting_f`. "
         f"`price_lowest_f` null rate on sale docs: "
         f"{sum('price_lowest_f' not in d for d in on)}/{n}.",
+        "- **There is no lowest-ever price field.** `price_lowest_f` == `price_sorting_f` on "
+        f"{sum(d.get('price_lowest_f') == d.get('price_sorting_f') for d in on)}/{n} on-sale "
+        "docs; it equals the discounted price on single-nsuid docs and the *regular* price on "
+        "docs not on sale. It is the cheapest **current** price across the doc's nsuids. "
+        "→ ATL must come from our own snapshot history (or an external history source).",
         "- **Index price fields can mix nsuids.** e.g. FINAL FANTASY VII REBIRTH carries "
         "`70010000112478` (GB £49.99→£7.49) and `70070000032076` (£64.99→£9.74); the doc shows "
         "regular 64.99 / discounted 9.74 / lowest 7.49. Treat them as hints only.",
