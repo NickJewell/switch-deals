@@ -1,0 +1,1 @@
+"""Switch Deals UK pipeline."""

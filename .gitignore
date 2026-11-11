@@ -1,0 +1,21 @@
+# secrets
+.env
+# local data / caches
+data/
+# heavy episode artefacts
+episodes/*/audio/
+episodes/*/clips/
+episodes/*/out/
+episodes/*/art/
+assets/trailers/*
+!assets/trailers/.gitkeep
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+# node / remotion
+video/node_modules/
+video/out/
+.DS_Store
