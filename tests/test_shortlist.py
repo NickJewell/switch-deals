@@ -29,7 +29,7 @@ def test_variety_rules_and_quotas():
         d(7, "Puzzle C", "StudioC Ltd", "Puzzle", rank=990),
         d(8, "GTA Trilogy", "ROCKSTAR", "Action", rank=40),
         d(9, "Cheap Indie", "StudioD Ltd", "Platformer", rank=1500, sale=299),
-        d(10, "Cheap Indie 2", "StudioE Ltd", "Strategy", rank=1600, sale=399),
+        d(10, "Budget Gem", "StudioE Ltd", "Strategy", rank=1600, sale=399),
         d(11, "Racer", "StudioF Ltd", "Racing", rank=500),
         d(12, "Sim", "StudioG Ltd", "Simulation", rank=700),
         d(13, "Fighter", "StudioH Ltd", "Fighting", rank=800),
@@ -40,7 +40,7 @@ def test_variety_rules_and_quotas():
     assert "Shovelware 96%" not in names  # unranked
     assert "FINAL FANTASY VII REMAKE" not in names and "Dragon Quest XI" not in names
     assert sum(s.genre == "Puzzle" for s in sl.slots) == 2
-    assert {"Cheap Indie", "Cheap Indie 2"} <= set(names)  # under-£5 quota
+    assert {"Cheap Indie", "Budget Gem"} <= set(names)  # under-£5 quota
     assert [s.layout for s in sl.slots].count("spotlight") == 2
     assert sl.slots[0].deal.title.title == "FINAL FANTASY VII REBIRTH"  # most popular opens
     assert 9 <= sl.minutes <= 11
