@@ -1,13 +1,15 @@
 """Phase 0 discovery: writes docs/data-dictionary.md, docs/manual-check.md and test fixtures.
 
-Run: `make discover`. Uses the on-disk cache, so re-runs are cheap.
+Run: `make discover`. Uses the on-disk cache, so re-runs are cheap. Never overwrites
+manual-check.md or the test fixtures unless asked (--refresh-manual-check / --refresh-fixtures).
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 from collections import Counter
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from pipeline.http import CachedClient
@@ -53,6 +55,18 @@ def field_table(docs: list[dict]) -> list[str]:
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument(
+        "--refresh-manual-check",
+        action="store_true",
+        help="overwrite docs/manual-check.md (loses any filled-in prices)",
+    )
+    ap.add_argument(
+        "--refresh-fixtures",
+        action="store_true",
+        help="overwrite tests/fixtures (tests assert on their contents)",
+    )
+    args = ap.parse_args()
     http = CachedClient()
     cat = CatalogClient(http)
     prices = PriceClient(http)
@@ -195,13 +209,20 @@ def main() -> None:
     ]
     DOCS.mkdir(exist_ok=True)
     (DOCS / "data-dictionary.md").write_text("\n".join(out))
+    print(f"on-sale docs={n}  switch2={len(s2)}  network calls={http.network_calls}")
+    print("wrote docs/data-dictionary.md")
 
     # --- manual check: 10 well-known single-nsuid titles, mix of S2/Switch + deep/shallow
     pool = [d for d in single if d["nsuid_txt"][0].startswith("7001") and d in ranked]
     pool.sort(key=lambda d: d["downloads_rank_i"])
     pool = pool[:250]
-    live = {p.nsuid for p, _ in prices.get([d["nsuid_txt"][0] for d in pool], "GB") if p.on_sale}
-    pool = [d for d in pool if d["nsuid_txt"][0] in live]  # API-confirmed sales only
+    soon = datetime.now(UTC) + timedelta(days=3)  # leave Nick time to check the site
+    live = {
+        p.nsuid
+        for p, _ in prices.get([d["nsuid_txt"][0] for d in pool], "GB")
+        if p.on_sale and p.sale_end and p.sale_end >= soon
+    }
+    pool = [d for d in pool if d["nsuid_txt"][0] in live]  # API-confirmed, not ending soon
     picks: list[dict] = []
     for want_s2, want_deep, k in [
         (True, True, 3),
@@ -219,7 +240,7 @@ def main() -> None:
         picks += cand[:k]
     chk = {p.nsuid: p for p, _ in prices.get([d["nsuid_txt"][0] for d in picks], "GB")}
     rows = [
-        "# Manual price check vs nintendo.co.uk",
+        "# Manual price check vs nintendo.co.uk (nintendo.com/en-gb)",
         "",
         f"_Generated {now}. Open each link, fill in the site prices, tick if they match._",
         "",
@@ -233,7 +254,12 @@ def main() -> None:
             f"| {i} | [{t.title}]({t.url}) | {'✓' if t.is_switch2 else ''} | "
             f"{fmt_gbp(p and p.regular_p)} | {fmt_gbp(p and p.sale_p)} | {end} |  |  |  |"
         )
-    (DOCS / "manual-check.md").write_text("\n".join(rows) + "\n")
+    manual = DOCS / "manual-check.md"
+    if args.refresh_manual_check or not manual.exists():
+        manual.write_text("\n".join(rows) + "\n")
+        print(f"wrote {manual}")
+    else:
+        print(f"kept {manual} (use --refresh-manual-check to regenerate)")
 
     # --- fixtures: a trimmed Solr page + matching price response
     fx = [d for d in multi if d["title"].startswith("FINAL FANTASY VII REBIRTH")][:1]
@@ -247,6 +273,9 @@ def main() -> None:
         "image_url_sq_s", "image_url_h16x9_s", "url", "excerpt",
     }  # fmt: skip
     fx = [{k: v for k, v in d.items() if k in keep} for d in fx]
+    if (FIXTURES / "solr_page.json").exists() and not args.refresh_fixtures:
+        print("kept tests/fixtures (use --refresh-fixtures; then update test expectations)")
+        return
     FIXTURES.mkdir(parents=True, exist_ok=True)
     (FIXTURES / "solr_page.json").write_text(
         json.dumps({"response": {"numFound": len(fx), "start": 0, "docs": fx}}, indent=1)
@@ -260,8 +289,7 @@ def main() -> None:
         json.dumps(http.get_json(url, ttl=3600).data, indent=1)
     )
 
-    print(f"on-sale docs={n}  switch2={len(s2)}  network calls={http.network_calls}")
-    print("wrote docs/data-dictionary.md, docs/manual-check.md, tests/fixtures/*.json")
+    print("wrote tests/fixtures/*.json")
 
 
 if __name__ == "__main__":

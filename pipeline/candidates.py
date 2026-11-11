@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import math
 from datetime import UTC, date, datetime, time, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -14,6 +15,7 @@ from pipeline.store import DEFAULT_DB, Store
 
 LONDON = ZoneInfo("Europe/London")
 TOP_N = 40
+RANK_FLOOR = 3000  # downloads_rank at/after which popularity counts for nothing
 WEIGHTS = {
     "discount": 0.40,  # pct_off / 100
     "popularity": 0.30,  # 1 - rank percentile among ranked deals; unranked = 0
@@ -47,12 +49,10 @@ def eligible(deals: list[Deal], cutoff: datetime) -> list[Deal]:
 
 
 def score(deals: list[Deal], now: datetime) -> list[tuple[float, Deal]]:
-    ranks = sorted(d.title.downloads_rank for d in deals if d.title.downloads_rank is not None)
-    pos = {r: i for i, r in reversed(list(enumerate(ranks)))}  # first index of each rank
-
     def pop(d: Deal) -> float:
+        """Log-scaled download rank: #1 → 1.0, #40 → ~0.54, #RANK_FLOOR+ / unranked → 0."""
         r = d.title.downloads_rank
-        return 0.0 if r is None or not ranks else 1 - pos[r] / len(ranks)
+        return 0.0 if r is None else max(0.0, 1 - math.log(max(r, 1)) / math.log(RANK_FLOOR))
 
     out = []
     for d in deals:
@@ -83,15 +83,15 @@ def render(week: str, publish: date, cutoff: datetime, ranked, total_live: int, 
         f"deals dropped)._",
         "",
         f"Weights: {', '.join(f'{k} {v}' for k, v in WEIGHTS.items())}. "
-        f"ATL `✓` = lowest in ≥ {ATL_CONFIRM_DAYS} days of our own history (scored); "
-        "`?` = lowest we've seen, but history too short to say (not scored). "
-        "Nintendo exposes no lowest-ever price.",
+        f"ATL `✓` = lowest price in our own history, once that covers ≥ {ATL_CONFIRM_DAYS} days "
+        "(Nintendo exposes no lowest-ever price, so ATL stays blank until then). "
+        f"Popularity = log-scaled `downloads_rank` (#1 → 1, #{RANK_FLOOR}+ or unranked → 0).",
         "",
         "| # | title | price | % | ends (London) | ATL | S2 | rank | score | nsuid |",
         "|---:|---|---|---:|---|:-:|:-:|---:|---:|---|",
     ]
     for i, (s, d) in enumerate(ranked[:TOP_N], 1):
-        atl = "✓" if d.atl_confirmed else "?" if d.is_atl else ""
+        atl = "✓" if d.atl_confirmed else ""
         title = f"[{d.title.title}]({d.title.url})" if d.title.url else d.title.title
         lines.append(
             f"| {i} | {title} | {fmt_gbp(d.regular_p)} → **{fmt_gbp(d.sale_p)}** | {d.pct_off}% | "

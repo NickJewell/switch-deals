@@ -133,46 +133,64 @@ class Store:
         )  # fmt: skip
 
     def latest_deals(self, country: str, now: datetime) -> list[Deal]:
-        """One Deal per title (primary nsuid), from its latest snapshot, if live and fresh."""
-        rows = self.db.execute(
-            """
-            WITH latest AS (
-              SELECT s.*, ROW_NUMBER() OVER (PARTITION BY nsuid ORDER BY fetched_at DESC) AS rn
-              FROM price_snapshots s WHERE country = ?
-            ), hist AS (
-              SELECT nsuid, MIN(sale_p) AS min_p, MIN(fetched_at) AS first_at,
-                     MAX(fetched_at) AS last_at
-              FROM price_snapshots WHERE country = ? AND sale_p IS NOT NULL GROUP BY nsuid
+        """One Deal per title from the latest snapshots, if live and fresh.
+
+        Uses the primary (base-game) nsuid when it is on sale; otherwise falls back to the
+        cheapest on-sale nsuid of that title (sales that only discount a bundle/edition).
+        """
+        latest = {
+            r["nsuid"]: r
+            for r in self.db.execute(
+                """SELECT * FROM (
+                     SELECT s.*, ROW_NUMBER() OVER (PARTITION BY nsuid ORDER BY fetched_at DESC) rn
+                     FROM price_snapshots s WHERE country = ?) WHERE rn = 1""",
+                (country,),
             )
-            SELECT t.*, l.fetched_at AS s_fetched_at, l.regular_p AS s_regular_p,
-                   l.sale_p AS s_sale_p, l.sale_start AS s_sale_start, l.sale_end AS s_sale_end,
-                   h.min_p, h.first_at, h.last_at
-            FROM titles t
-            JOIN latest l ON l.nsuid = t.primary_nsuid AND l.rn = 1
-            LEFT JOIN hist h ON h.nsuid = t.primary_nsuid
-            WHERE l.sale_p IS NOT NULL AND l.regular_p IS NOT NULL
-            """,
-            (country, country),
-        ).fetchall()
+        }
+        hist_min = dict(
+            self.db.execute(
+                "SELECT nsuid, MIN(sale_p) FROM price_snapshots "
+                "WHERE country = ? AND sale_p IS NOT NULL GROUP BY nsuid",
+                (country,),
+            ).fetchall()
+        )
+        # ATL coverage = how long we've been sweeping this store, not how long this nsuid has
+        # been on sale: the sweep records every sale, so no earlier row means no earlier sale.
+        first = self.db.execute(
+            "SELECT MIN(fetched_at) FROM price_snapshots WHERE country = ?", (country,)
+        ).fetchone()[0]
+        coverage = (now - _dt(first)).total_seconds() / 86400 if first else 0.0
+
+        def live(nsuid: str) -> sqlite3.Row | None:
+            r = latest.get(nsuid)
+            if r is None or r["sale_p"] is None or r["regular_p"] is None:
+                return None
+            end = _dt(r["sale_end"])
+            if now - _dt(r["fetched_at"]) > STALE_AFTER or (end is not None and end <= now):
+                return None
+            return r
+
         deals = []
-        for r in rows:
-            fetched_at = _dt(r["s_fetched_at"])
-            sale_end = _dt(r["s_sale_end"])
-            if now - fetched_at > STALE_AFTER or (sale_end is not None and sale_end <= now):
+        for t in self.db.execute("SELECT * FROM titles WHERE primary_nsuid IS NOT NULL"):
+            title = self._title(t)
+            snap = live(title.primary_nsuid)
+            if snap is None:
+                others = [r for n in title.nsuids if (r := live(n)) is not None]
+                snap = min(others, key=lambda r: (r["sale_p"], r["nsuid"]), default=None)
+            if snap is None:
                 continue
-            span = (_dt(r["last_at"]) - _dt(r["first_at"])).total_seconds() / 86400
             deals.append(
                 Deal(
-                    title=self._title(r),
-                    nsuid=r["primary_nsuid"],
+                    title=title,
+                    nsuid=snap["nsuid"],
                     country=country,
-                    fetched_at=fetched_at,
-                    regular_p=r["s_regular_p"],
-                    sale_p=r["s_sale_p"],
-                    sale_start=_dt(r["s_sale_start"]),
-                    sale_end=sale_end,
-                    history_min_p=r["min_p"],
-                    history_days=span,
+                    fetched_at=_dt(snap["fetched_at"]),
+                    regular_p=snap["regular_p"],
+                    sale_p=snap["sale_p"],
+                    sale_start=_dt(snap["sale_start"]),
+                    sale_end=_dt(snap["sale_end"]),
+                    history_min_p=hist_min.get(snap["nsuid"]),
+                    history_days=coverage,
                 )  # fmt: skip
             )
         return deals

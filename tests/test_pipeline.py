@@ -154,3 +154,24 @@ def test_fetch_is_idempotent_and_second_run_makes_no_requests(tmp_path):
     assert http.network_calls == calls  # all served from cache
     assert second["snapshots_inserted"] == 0
     assert store.count("price_snapshots") == first["prices"]
+
+
+def test_bundle_only_sale_falls_back_to_cheapest_on_sale_nsuid(tmp_path):
+    s = Store(tmp_path / "d.sqlite")
+    base, bundle = "70010000000001", "70070000000001"
+    t = Title(fs_id="1", title="Combo", nsuids=(base, bundle), primary_nsuid=base, is_switch2=False)
+    s.upsert_titles([t], NOW)
+    full = PriceInfo(base, "GB", "onsale", "GBP", 2000, None, None, None)
+    s.insert_snapshots([(full, NOW), (price(bundle, 900, regular=3000), NOW)])
+    [d] = s.latest_deals("GB", NOW)
+    assert (d.nsuid, d.sale_p, d.regular_p) == (bundle, 900, 3000)
+
+
+def test_atl_coverage_is_store_wide_not_per_nsuid(tmp_path):
+    s = Store(tmp_path / "d.sqlite")
+    s.upsert_titles([title("1", "70010000000001"), title("2", "70010000000002")], NOW)
+    s.insert_snapshots([(price("70010000000002", 900), NOW - timedelta(days=120))])
+    # title 1 goes on sale for the first time today, after 120 days of sweeping
+    s.insert_snapshots([(price("70010000000001", 700), NOW - timedelta(hours=1))])
+    d = next(x for x in s.latest_deals("GB", NOW + timedelta(hours=1)) if x.title.fs_id == "1")
+    assert d.history_days > 119 and d.atl_confirmed
