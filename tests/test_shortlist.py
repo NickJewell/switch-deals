@@ -24,15 +24,15 @@ def test_variety_rules_and_quotas():
         d(2, "FINAL FANTASY VII REMAKE", "Square Enix Europe", "RPG", rank=39),
         d(3, "Dragon Quest XI", "SQUARE ENIX", "RPG", rank=50),
         d(4, "Shovelware 96%", "Panda", "Racing", rank=None, sale=149),
-        d(5, "Puzzle A", "Pub A", "Puzzle", rank=900),
-        d(6, "Puzzle B", "Pub B", "Puzzle", rank=950),
-        d(7, "Puzzle C", "Pub C", "Puzzle", rank=990),
+        d(5, "Puzzle A", "StudioA Ltd", "Puzzle", rank=900),
+        d(6, "Puzzle B", "StudioB Ltd", "Puzzle", rank=950),
+        d(7, "Puzzle C", "StudioC Ltd", "Puzzle", rank=990),
         d(8, "GTA Trilogy", "ROCKSTAR", "Action", rank=40),
-        d(9, "Cheap Indie", "Pub D", "Platformer", rank=1500, sale=299),
-        d(10, "Cheap Indie 2", "Pub E", "Strategy", rank=1600, sale=399),
-        d(11, "Racer", "Pub F", "Racing", rank=500),
-        d(12, "Sim", "Pub G", "Simulation", rank=700),
-        d(13, "Fighter", "Pub H", "Fighting", rank=800),
+        d(9, "Cheap Indie", "StudioD Ltd", "Platformer", rank=1500, sale=299),
+        d(10, "Cheap Indie 2", "StudioE Ltd", "Strategy", rank=1600, sale=399),
+        d(11, "Racer", "StudioF Ltd", "Racing", rank=500),
+        d(12, "Sim", "StudioG Ltd", "Simulation", rank=700),
+        d(13, "Fighter", "StudioH Ltd", "Fighting", rank=800),
     ]
     sl = shortlist.build(ranked(deals), size=8)
     names = [s.deal.title.title for s in sl.slots]
